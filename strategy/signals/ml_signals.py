@@ -334,6 +334,12 @@ class MLSignalGenerator:
 
     Retrains periodically using walk-forward methodology to avoid
     look-ahead bias and track non-stationarity.
+
+    CPU-safe mode: set use_lstm=False (default) to skip LSTM and rely
+    only on XGBoost. On CPU, LSTM trains in ~5 min per window; XGBoost
+    trains in ~10 seconds. Enable LSTM only when GPU is available:
+      MLSignalGenerator(use_lstm=True)
+    Or set env var: USE_LSTM=1
     """
 
     def __init__(
@@ -343,15 +349,27 @@ class MLSignalGenerator:
         xgb_weights: float = 0.6,
         model_dir: str = "models",
         min_train_samples: int = 500,
+        use_lstm: Optional[bool] = None,
     ) -> None:
         self.seq_len = seq_len
-        self.lstm_weight = lstm_weights
-        self.xgb_weight = xgb_weights
         self.model_dir = model_dir
         self.min_train_samples = min_train_samples
 
+        # Auto-detect whether to use LSTM (needs GPU or explicit opt-in)
+        if use_lstm is None:
+            use_lstm = os.getenv("USE_LSTM", "0").strip() == "1"
+        self.use_lstm = use_lstm
+
+        # Adjust weights when LSTM is disabled
+        if self.use_lstm:
+            self.lstm_weight = lstm_weights
+            self.xgb_weight = xgb_weights
+        else:
+            self.lstm_weight = 0.0
+            self.xgb_weight = 1.0
+
         os.makedirs(model_dir, exist_ok=True)
-        self.lstm = LSTMModel(seq_len=seq_len)
+        self.lstm = LSTMModel(seq_len=seq_len) if self.use_lstm else None
         self.xgb = XGBoostModel()
         self._trained = False
         self._last_train_idx = 0
@@ -378,20 +396,22 @@ class MLSignalGenerator:
         from utils.logger import logger
         logger.info(f"ML training | {len(X)} samples | {X.shape[1]} features")
 
-        # XGBoost training
+        # XGBoost training (always — fast, CPU-friendly ~10s)
         self.xgb.train(X, y)
 
-        # LSTM training (needs sequential data)
-        self.lstm.train(X.values, y)
+        # LSTM training — only when GPU available or USE_LSTM=1
+        if self.use_lstm and self.lstm is not None:
+            self.lstm.train(X.values, y)
 
         self._trained = True
         self._last_train_idx = len(df)
 
         # Save models
-        self.lstm.save(os.path.join(self.model_dir, "hypestrat"))
+        if self.use_lstm and self.lstm is not None:
+            self.lstm.save(os.path.join(self.model_dir, "hypestrat"))
         self.xgb.save(os.path.join(self.model_dir, "hypestrat"))
 
-        logger.info("ML models trained and saved")
+        logger.info(f"ML models trained and saved | LSTM={'on' if self.use_lstm else 'off (CPU mode)'}")
 
     def predict(self, df: pd.DataFrame) -> Dict[str, float]:
         """
@@ -407,18 +427,20 @@ class MLSignalGenerator:
 
         X_latest = features.iloc[-1:].fillna(0)
 
-        # XGBoost prediction
+        # XGBoost prediction (always available)
         xgb_prob = self.xgb.predict_proba(X_latest)
 
-        # LSTM prediction (needs sequence)
-        X_seq = features.fillna(0).values
-        lstm_prob = self.lstm.predict_proba(X_seq)
+        # LSTM prediction (only when enabled)
+        if self.use_lstm and self.lstm is not None:
+            X_seq = features.fillna(0).values
+            lstm_prob = self.lstm.predict_proba(X_seq)
+        else:
+            lstm_prob = 0.5  # Neutral — not used
 
         if not self._trained:
-            # Not trained yet → neutral signal
             return {"ml_composite": 0.0, "ml_confidence": 0.0, "xgb_prob": xgb_prob, "lstm_prob": lstm_prob}
 
-        # Ensemble
+        # Ensemble (lstm_weight=0 when CPU mode)
         ensemble_prob = self.lstm_weight * lstm_prob + self.xgb_weight * xgb_prob
 
         # Convert probability to signal in [-1, +1]
