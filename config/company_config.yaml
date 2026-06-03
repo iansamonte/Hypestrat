@@ -1,0 +1,85 @@
+# IAN.AI Ventures — Company Configuration
+
+company:
+  name: "IAN.AI Ventures"
+  tagline: "Autonomous AI Systems for Business Growth"
+  founded: "2025"
+  model: "fully-autonomous AI company"
+
+capital:
+  initial: 1000.00
+  currency: "USD"
+
+targets:
+  mrr: 30000.00
+  timeline_months: 12
+  total_clients: 36
+
+pricing:
+  tiers:
+    - id: 1
+      name: "AI Content Engine"
+      price_monthly: 500.00
+      target_clients: 20
+      target_mrr: 10000.00
+      description: "Automates blog, social, and email content for SMBs"
+      value_prop: "Save 10-15 hours/week on content creation"
+      setup_time_days: 3
+
+    - id: 2
+      name: "AI Sales Autopilot"
+      price_monthly: 1000.00
+      target_clients: 12
+      target_mrr: 12000.00
+      description: "Automated lead generation and outreach sequences"
+      value_prop: "3x more outreach, 2x response rates"
+      setup_time_days: 5
+
+    - id: 3
+      name: "AI Business Suite"
+      price_monthly: 2000.00
+      target_clients: 4
+      target_mrr: 8000.00
+      description: "Full AI automation stack: content + sales + operations"
+      value_prop: "20+ hours/week saved across entire business"
+      setup_time_days: 10
+
+financials:
+  base_monthly_expenses:
+    infrastructure: 50.00
+    sales_tools: 30.00
+    ai_api: 20.00
+    operations: 10.00
+  variable_cost_per_client: 5.00
+  target_gross_margin: 0.85
+  min_runway_months: 3
+
+sales:
+  target_conversion_rate: 0.15
+  avg_sales_cycle_days: 21
+  target_monthly_leads: 20
+  demo_to_close_rate: 0.40
+  follow_up_sequence_length: 5
+
+customer_success:
+  target_churn_rate: 0.03
+  target_nrr: 1.10
+  target_avg_health_score: 80
+  upsell_rate_quarterly: 0.15
+  onboarding_sla_hours: 48
+
+marketing:
+  channels:
+    - name: "linkedin"
+      allocation: 0.40
+    - name: "cold_email"
+      allocation: 0.35
+    - name: "content_seo"
+      allocation: 0.25
+  monthly_content_pieces: 12
+  target_monthly_impressions: 10000
+
+agents:
+  model: "claude-sonnet-4-6"
+  max_iterations: 10
+  log_level: "INFO"
