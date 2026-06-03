@@ -1,0 +1,43 @@
+# Credentials - NEVER commit
+.env
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# ML models (large binary files)
+models/
+*.h5
+*.keras
+*.ubj
+*.pkl
+
+# Logs
+logs/
+*.log
+
+# Data cache
+data/
+*.csv
+*.parquet
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb

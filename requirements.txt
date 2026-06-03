@@ -1,0 +1,51 @@
+# Core scientific stack
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.0
+statsmodels==0.14.2
+
+# Hyperliquid
+hyperliquid-python-sdk==0.9.0
+
+# Machine Learning
+scikit-learn==1.5.0
+xgboost==2.0.3
+lightgbm==4.3.0
+tensorflow==2.16.1
+keras==3.3.3
+
+# Statistical / Quant Models
+arch==6.3.0
+hmmlearn==0.3.2
+filterpy==1.4.5
+pykalman==0.9.7
+
+# Technical Analysis
+ta==0.11.0
+pandas-ta==0.3.14b
+
+# Portfolio Optimization
+cvxpy==1.5.0
+PyPortfolioOpt==1.5.5
+
+# Async / Networking
+aiohttp==3.9.5
+websockets==12.0
+python-dotenv==1.0.1
+eth-account==0.11.2
+
+# Hyperparameter Optimization
+optuna==3.6.1
+
+# Visualization
+plotly==5.22.0
+matplotlib==3.9.0
+seaborn==0.13.2
+rich==13.7.1
+
+# Utilities
+loguru==0.7.2
+click==8.1.7
+tqdm==4.66.4
+joblib==1.4.2
+numba==0.60.0
