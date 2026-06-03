@@ -1,0 +1,44 @@
+{
+  "weights": {
+    "technical": 0.17337443503044447,
+    "momentum": 0.13940715981764804,
+    "mean_reversion": 0.29580399656874995,
+    "orderflow": 0.13940715981764804,
+    "funding": 0.2520072487655095
+  },
+  "params": {
+    "signal_threshold": 0.09680000000000001,
+    "stop_atr_mult": 2.662000000000001,
+    "tp_atr_mult": 5.0,
+    "trailing_atr_mult": 1.5,
+    "kelly_fraction": 0.25,
+    "max_position_pct": 0.3
+  },
+  "ic_history": [
+    {
+      "technical": -0.020984393757503002,
+      "momentum": -0.1632172869147659,
+      "mean_reversion": 0.1791446885375361,
+      "orderflow": -0.20816326530612245,
+      "funding": 0.15937575030012002,
+      "composite": 0.1771428571428571
+    },
+    {
+      "technical": 0.04674467446744674,
+      "momentum": -0.10735073507350734,
+      "mean_reversion": 0.12217314809849071,
+      "orderflow": 0.02724272427242724,
+      "funding": 0.061170117011701164,
+      "composite": 0.15651965196519652
+    },
+    {
+      "technical": -0.012219209742655229,
+      "momentum": -0.09314725098893284,
+      "mean_reversion": 0.11290581527828164,
+      "orderflow": -0.028931063602826795,
+      "funding": 0.07349837770567581,
+      "composite": 0.09593848615494023
+    }
+  ],
+  "n_updates": 3
+}
