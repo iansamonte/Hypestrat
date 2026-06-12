@@ -29,6 +29,9 @@ data/
 *.csv
 *.parquet
 
+# Learner runtime state (regenerated every run)
+state/
+
 # IDE
 .vscode/
 .idea/
