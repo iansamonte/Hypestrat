@@ -162,6 +162,35 @@ def btc_master_ok(df_btc: pd.DataFrame) -> bool:
     return not (below and falling)
 
 
+# ─── Error helpers ────────────────────────────────────────────────────────────
+
+def _short_err(e: Exception) -> str:
+    """One-line summary of a fetch exception (no stack spam)."""
+    msg = str(e)
+    if "403" in msg or "Forbidden" in msg:
+        return "403 Forbidden (host likely blocked by network policy)"
+    if "Name or service not known" in msg or "getaddrinfo" in msg or "Failed to resolve" in msg:
+        return "DNS resolution failed (no network)"
+    if "timed out" in msg.lower() or "timeout" in msg.lower():
+        return "request timed out"
+    return msg[:80]
+
+
+def _network_help(errs):
+    """Print an actionable diagnosis when no data could be fetched."""
+    blocked = any("403" in str(e) or "Forbidden" in str(e) for _, e in errs)
+    print("\n  ✗ Could not fetch any market data — cannot run the scan.")
+    if blocked:
+        print("    Cause: api.hyperliquid.xyz is blocked by this environment's network policy.")
+        print("    Fix:")
+        print("      • Run on your own machine (no egress filter), OR")
+        print("      • Allowlist 'api.hyperliquid.xyz' in the web environment's egress settings.")
+    else:
+        print("    Cause: no network connectivity to api.hyperliquid.xyz.")
+        print("    Fix: check your internet connection, then retry.")
+    print("    Tip: 'python scan_setups.py --demo' verifies the logic offline.")
+
+
 # ─── Scan ─────────────────────────────────────────────────────────────────────
 
 def scan(demo: bool = False):
@@ -175,17 +204,21 @@ def scan(demo: bool = False):
         try:
             funding = fetch_funding_rates()
         except Exception as e:
-            print(f"  ⚠ funding fetch failed ({e}) — check #4 will show '?'")
+            print(f"  ⚠ funding fetch failed ({_short_err(e)}) — check #4 will show '?'")
 
     candles = {}
+    fetch_errs = []
     for i, coin in enumerate(TIERS):
         try:
             candles[coin] = demo_candles(coin, seed=i) if demo else fetch_candles_1h(coin)
         except Exception as e:
-            print(f"  ⚠ {coin}: candle fetch failed ({e}) — skipped")
+            fetch_errs.append((coin, e))
+    if fetch_errs:
+        print(f"  ⚠ {len(fetch_errs)}/{len(TIERS)} tokens failed to fetch "
+              f"(first: {fetch_errs[0][0]} — {_short_err(fetch_errs[0][1])})")
 
     if "BTC" not in candles:
-        print("  ✗ No BTC data — cannot apply master filter. Aborting.")
+        _network_help(fetch_errs)
         sys.exit(1)
 
     master = btc_master_ok(candles["BTC"])
